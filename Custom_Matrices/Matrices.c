@@ -1,21 +1,20 @@
+#include "Matrices.h"
 #include <stdlib.h>
 #include <assert.h>
-typedef struct Matrix
-{
-    int rows;
-    int cols;
-    double* data;
-} Matrix;
-
-
 
 Matrix* create_Matrix(int rows,int cols){
+
+    assert(rows >0 && cols > 0);
+
     Matrix* matrix = malloc(sizeof(Matrix));
 
     matrix->rows = rows;
     matrix->cols = cols;
 
-    matrix->data = malloc(rows * cols * sizeof(double));
+    size_t totalsize = (size_t)rows * cols;
+
+    matrix->data = malloc((totalsize * sizeof(double)));
+
     for(int i = 0 ; i < rows * cols;i++){
         matrix->data[i] = 0;
     }
@@ -32,13 +31,19 @@ Matrix* matrix_dot(Matrix* matrix_A,Matrix* matrix_B){
 
 
     for(int i =0 ;i < matrix_A->rows;i++){
-        for(int j = 0 ; j < matrix_A->cols;j++){
-            for(int k = 0 ; k < matrix_B->rows;k++){
-                int index_A = (i * matrix_A->cols) + k;
 
-                int index_B = (k * matrix_B->cols) + j;
+        for(int j = 0 ; j < matrix_B->rows;j++){
 
-                result_matrix->data[index_A] = matrix_A->data[index_A] * matrix_B->data[index_B];
+            /// matrix_B->rows === matrix_A->cols
+            int index_A = (i * matrix_A->cols) + j;
+
+            for(int k = 0 ; k < matrix_B->cols;k++){
+
+                int index_B = (j * matrix_B->cols) + k;
+
+                int result_index = (i*matrix_B->cols) + k;
+
+                result_matrix->data[result_index] += matrix_A->data[index_A] * matrix_B->data[index_B];
             }
         }
     }
@@ -72,4 +77,26 @@ Matrix* matrix_add_1D_to_2D(Matrix* matrix_A,Matrix* matrix_B){
         }
     }
     return result_matrix;
+}
+
+int matrix_cell_set(double value,int i,int j,Matrix* matrix){
+    int index = i*matrix->cols + j;
+    assert(index < matrix->rows * matrix->cols);
+
+    matrix->data[index] = value;
+    return 1;
+}
+
+double matrix_cell_get(int i,int j,Matrix* matrix){
+    int index = i*matrix->cols + j;
+    assert(index < matrix->rows * matrix->cols);
+
+    return matrix->data[index];
+}
+
+void free_matrix(Matrix* matrix){
+    if(matrix == NULL)return;
+    free(matrix->data);
+    free(matrix);
+    matrix = NULL;
 }
