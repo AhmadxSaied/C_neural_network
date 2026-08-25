@@ -82,7 +82,7 @@ Matrix* matrix_add_1D_to_2D(Matrix* matrix_A,Matrix* matrix_B){
 }
 
 int matrix_cell_set(double value,int i,int j,Matrix* matrix){
-    if(matrix == NULL) return NULL;
+    if(matrix == NULL) return -1;
     int index = i*matrix->cols + j;
     assert(index < matrix->rows * matrix->cols);
 
@@ -138,6 +138,46 @@ Matrix* matrix_transpose(Matrix* matrix){
         }
     }
     return transposed_matrix;
+}
+
+void matrix_zero(Matrix* matrix){
+    assert(matrix != NULL);
+
+    for(int i = 0 ; i < matrix->rows;i++){
+        for(int j = 0 ; j < matrix->cols ; j++){
+            matrix_cell_set(0,i,j,matrix);
+        }
+    }
+}
+
+void matrix_apply_activation(Matrix* matrix,double (*activation)(double val)){
+    
+    assert(matrix != NULL);
+
+    for(int i = 0 ; i < matrix->rows ; i++){
+        for(int j = 0 ; j < matrix->cols ; j++){
+            
+            int index = i * matrix->cols + j;
+
+            matrix->data[index] = activation(matrix->data[index]);
+        }
+    }
+}
+
+Matrix* matrix_hadamard_product(Matrix* matrix_A,Matrix* matrix_B){
+    if(matrix_A == NULL || matrix_B) return NULL;
+    assert(matrix_A->cols == matrix_B->cols && matrix_A->rows == matrix_B->rows);
+
+    Matrix* result_matrix = create_Matrix(matrix_A->cols,matrix_B->rows);
+
+
+    for(int i = 0 ;i < matrix_A->rows; i++){
+        for(int j = 0 ; j < matrix_A->cols;j++){
+            int index = i * matrix_A->cols + j;
+            result_matrix->data[index] =  matrix_A->data[index] * matrix_B->data[index];
+        }
+    }
+    return result_matrix;
 }
 
 void free_matrix(Matrix* matrix){
