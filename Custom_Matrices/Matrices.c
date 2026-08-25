@@ -101,7 +101,7 @@ double matrix_cell_get(int i,int j,Matrix* matrix){
 }
 
 
-Matrix* multiply_scalar(double scale,Matrix* matrix){
+Matrix* matrix_multiply_scalar(double scale,Matrix* matrix){
     if(matrix == NULL) return NULL;
 
     int rows = matrix->rows;
@@ -150,7 +150,7 @@ void matrix_zero(Matrix* matrix){
     }
 }
 
-void matrix_apply_activation(Matrix* matrix,double (*activation)(double val)){
+void matrix_apply_activation(Matrix* result_Matrix,Matrix* matrix,double (*activation)(double val)){
     
     assert(matrix != NULL);
 
@@ -159,22 +159,37 @@ void matrix_apply_activation(Matrix* matrix,double (*activation)(double val)){
             
             int index = i * matrix->cols + j;
 
-            matrix->data[index] = activation(matrix->data[index]);
+            result_Matrix->data[index] = activation(matrix->data[index]);
         }
     }
 }
 
 Matrix* matrix_hadamard_product(Matrix* matrix_A,Matrix* matrix_B){
-    if(matrix_A == NULL || matrix_B) return NULL;
+    if(matrix_A == NULL || matrix_B == NULL) return NULL;
     assert(matrix_A->cols == matrix_B->cols && matrix_A->rows == matrix_B->rows);
 
-    Matrix* result_matrix = create_Matrix(matrix_A->cols,matrix_B->rows);
+    Matrix* result_matrix = create_Matrix(matrix_A->rows,matrix_B->cols);
 
 
     for(int i = 0 ;i < matrix_A->rows; i++){
         for(int j = 0 ; j < matrix_A->cols;j++){
             int index = i * matrix_A->cols + j;
             result_matrix->data[index] =  matrix_A->data[index] * matrix_B->data[index];
+        }
+    }
+    return result_matrix;
+}
+
+
+Matrix* matrix_sum_axis(Matrix* matrix){
+    assert(matrix != NULL);
+
+    Matrix* result_matrix = create_Matrix(matrix->rows,1);
+
+    for(int i = 0 ; i< matrix->rows ; i++){
+        result_matrix->data[i] = 0;
+        for(int j = 0 ; j < matrix->cols ; j++){
+            result_matrix->data[i] += matrix->data[i*matrix->cols + j];
         }
     }
     return result_matrix;

@@ -6,9 +6,11 @@ typedef struct Layer
     Matrix* weights;
     Matrix* biases;
     Matrix* activations;
+    Matrix* dactivations;
+    Matrix* z;
     Matrix* dweights;
     Matrix* dbiases;
-    Matrix* dactivations;
+    Matrix* delta;
 
     Matrix* (*activation_function)(Matrix* matrix);
     Matrix* (*dactivation_function)(Matrix* matrix);
@@ -23,6 +25,7 @@ Layer* create_Layer(int layer_neurons, int nextlayer_neurons,double(*activation_
     layer->dweights = create_Matrix(nextlayer_neurons,layer_neurons);
     layer->biases = create_Matrix(nextlayer_neurons,1);
     layer->biases = create_Matrix(nextlayer_neurons,1);
+    layer->z = create_Matrix(nextlayer_neurons, 1);
     layer->activations = create_Matrix(nextlayer_neurons,1);
     layer->dactivations = create_Matrix(nextlayer_neurons,1);
     layer->activation_function = activation_function;
