@@ -24,7 +24,7 @@ Matrix* create_Matrix(int rows,int cols){
 
 
 Matrix* matrix_dot(Matrix* matrix_A,Matrix* matrix_B){
-
+    if(matrix_A == NULL || matrix_B) return NULL;
     assert(matrix_A->cols == matrix_B->rows);
     
     Matrix* result_matrix = create_Matrix(matrix_A->rows,matrix_B->cols);
@@ -51,6 +51,7 @@ Matrix* matrix_dot(Matrix* matrix_A,Matrix* matrix_B){
 }
 
 Matrix* matrix_add(Matrix* matrix_A,Matrix* matrix_B){
+    if(matrix_A == NULL || matrix_B) return NULL;
     assert(matrix_A->cols == matrix_B->cols && matrix_A->rows == matrix_B->rows);
 
     Matrix* result_matrix = create_Matrix(matrix_A->cols,matrix_B->rows);
@@ -66,6 +67,7 @@ Matrix* matrix_add(Matrix* matrix_A,Matrix* matrix_B){
 }
 
 Matrix* matrix_add_1D_to_2D(Matrix* matrix_A,Matrix* matrix_B){
+    if(matrix_A == NULL || matrix_B) return NULL;
     assert(matrix_A->rows == matrix_B->rows);
 
     Matrix* result_matrix = create_Matrix(matrix_A->cols,matrix_A->rows);
@@ -80,6 +82,7 @@ Matrix* matrix_add_1D_to_2D(Matrix* matrix_A,Matrix* matrix_B){
 }
 
 int matrix_cell_set(double value,int i,int j,Matrix* matrix){
+    if(matrix == NULL) return NULL;
     int index = i*matrix->cols + j;
     assert(index < matrix->rows * matrix->cols);
 
@@ -88,10 +91,53 @@ int matrix_cell_set(double value,int i,int j,Matrix* matrix){
 }
 
 double matrix_cell_get(int i,int j,Matrix* matrix){
+    
+    assert(matrix !=NULL);
+
     int index = i*matrix->cols + j;
     assert(index < matrix->rows * matrix->cols);
 
     return matrix->data[index];
+}
+
+
+Matrix* multiply_scalar(double scale,Matrix* matrix){
+    if(matrix == NULL) return NULL;
+
+    int rows = matrix->rows;
+    int cols = matrix->cols;
+
+    Matrix* res_matrix = create_Matrix(rows,cols);
+
+    for(int i = 0; i < rows;i++){
+        for(int j = 0 ; j < cols ; j++){
+            int index = i * cols + j;
+
+            res_matrix->data[index] = matrix->data[index] * scale;
+        }
+    }
+    return res_matrix;
+}
+
+Matrix* matrix_transpose(Matrix* matrix){
+    if(matrix == NULL)return NULL;
+
+    int cols = matrix->cols;
+    int rows = matrix->rows;
+
+    Matrix* transposed_matrix = create_Matrix(cols,rows);
+
+    for(int i = 0 ; i < cols;i++){
+        for(int j = 0 ; j < rows; j++){
+            int index_t = i* rows + j;
+
+            int index_normal = j * cols + i;
+
+            transposed_matrix->data[index_t] = matrix->data[index_normal];
+
+        }
+    }
+    return transposed_matrix;
 }
 
 void free_matrix(Matrix* matrix){
