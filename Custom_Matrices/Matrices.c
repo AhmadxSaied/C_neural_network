@@ -1,6 +1,5 @@
 #include "Matrices.h"
-#include <stdlib.h>
-#include <assert.h>
+
 
 Matrix* create_Matrix(int rows,int cols){
 
@@ -24,7 +23,7 @@ Matrix* create_Matrix(int rows,int cols){
 
 
 Matrix* matrix_dot(Matrix* matrix_A,Matrix* matrix_B){
-    if(matrix_A == NULL || matrix_B) return NULL;
+    if(matrix_A == NULL || matrix_B == NULL) return NULL;
     assert(matrix_A->cols == matrix_B->rows);
     
     Matrix* result_matrix = create_Matrix(matrix_A->rows,matrix_B->cols);
@@ -51,7 +50,7 @@ Matrix* matrix_dot(Matrix* matrix_A,Matrix* matrix_B){
 }
 
 Matrix* matrix_add(Matrix* matrix_A,Matrix* matrix_B){
-    if(matrix_A == NULL || matrix_B) return NULL;
+    if(matrix_A == NULL || matrix_B == NULL) return NULL;
     assert(matrix_A->cols == matrix_B->cols && matrix_A->rows == matrix_B->rows);
 
     Matrix* result_matrix = create_Matrix(matrix_A->cols,matrix_B->rows);
@@ -67,7 +66,7 @@ Matrix* matrix_add(Matrix* matrix_A,Matrix* matrix_B){
 }
 
 Matrix* matrix_add_1D_to_2D(Matrix* matrix_A,Matrix* matrix_B){
-    if(matrix_A == NULL || matrix_B) return NULL;
+    if(matrix_A == NULL || matrix_B == NULL) return NULL;
     assert(matrix_A->rows == matrix_B->rows);
 
     Matrix* result_matrix = create_Matrix(matrix_A->cols,matrix_A->rows);

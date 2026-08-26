@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include "LossFunctions.c"
+#include <LossFunctions.h>
+#include <Matrices.h>
 int main(){
     int output[10][2] = {
         {1,2},
@@ -11,7 +12,8 @@ int main(){
         {3,2},
         {5,4},
         {9,7},
-        {25,20}
+        {25,20},
+        {1,1}
     };
 
 
@@ -33,13 +35,14 @@ int main(){
         {9,7},
         {25,20},
         {1,2},
+        {1,1}
     };
 
     Matrix* ref = create_Matrix(10,2);
 
     for(int i = 0 ;i < 10 ; i++){
         for(int j = 0 ; j < 2 ; j++){
-            matrix_cell_set(reference[i][j],i,j,out);
+            matrix_cell_set(reference[i][j],i,j,ref);
         }
     }
 

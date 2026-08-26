@@ -1,6 +1,7 @@
 #ifndef MATRICES_H
 #define MATRICES_H
-
+#include <stdlib.h>
+#include <assert.h>
 typedef struct Matrix
 {
     int rows;

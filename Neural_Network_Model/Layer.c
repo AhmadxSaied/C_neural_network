@@ -1,23 +1,9 @@
-#include <Matrices.h>
-#include <stdlib.h>
-typedef struct Layer
-{
-    int neurons_number;
-    Matrix* weights;
-    Matrix* biases;
-    Matrix* activations;
-    Matrix* dactivations;
-    Matrix* z;
-    Matrix* dweights;
-    Matrix* dbiases;
-    Matrix* delta;
+#include <Layer.h>
 
-    Matrix* (*activation_function)(Matrix* matrix);
-    Matrix* (*dactivation_function)(Matrix* matrix);
 
-} Layer;
-
-Layer* create_Layer(int layer_neurons, int nextlayer_neurons,double(*activation_function)(double val),double(*dactivation_function)(double val)){
+Layer* create_Layer(int layer_neurons, int nextlayer_neurons,double(*activation_function)(double val),double(*dactivation_function)(double val),
+void (*initializationFunction)(Matrix* matrix)
+){
 
     Layer* layer = malloc(sizeof(layer));
 
@@ -30,6 +16,11 @@ Layer* create_Layer(int layer_neurons, int nextlayer_neurons,double(*activation_
     layer->dactivations = create_Matrix(nextlayer_neurons,1);
     layer->activation_function = activation_function;
     layer->dactivation_function = dactivation_function;
+
+
+    layer->initializationFunction = initializationFunction;
+    layer->initializationFunction(layer->weights);
+
     return layer;
 
 }

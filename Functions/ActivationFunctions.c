@@ -1,7 +1,5 @@
-#include <assert.h>
-#include <math.h>
-#include <Matrices.h>
-#include <stdlib.h>
+#include <ActivationFunctions.h>
+
 double sigmoid(double val) {
     const double euler = exp(1);
     return (1 /  (1 + pow(euler,-val)));

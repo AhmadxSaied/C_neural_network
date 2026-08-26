@@ -23,6 +23,7 @@ int main(){
         }
     }
 
+    
     Matrix* res = matrix_dot(matrixa,matrixb);
 
     for(int i = 0 ; i < res->rows ; i++){
@@ -30,6 +31,9 @@ int main(){
             assert(matrix_cell_get(i,j,res) == matres[i][j]);
         }
     }
+
+    
+
     free_matrix(matrixa);
     free_matrix(matrixb);
     free_matrix(res);

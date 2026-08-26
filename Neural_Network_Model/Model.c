@@ -1,24 +1,8 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <Matrices.h>
-#include <string.h>
-#include <assert.h>
-#include "Layer.c"
-#include "LossFunctions.c"
-typedef struct Model
-{
-    int input_size;
-    int number_of_hidden_layers;
-    int* layer_sizes;
-    int output_size;
-
-    Layer* layers;
-
-}Model;
-
+#include <Model.h>
 
 Model* create_Model(int input_size,int number_of_hidden_layers,int* layer_sizes,int output_size,
-    double(*activation_function)(double val),double(*dactivation_function)(double val)
+    double(*activation_function)(double val),double(*dactivation_function)(double val),
+    void (*initializationFunction)(Matrix* matrix)
 ){
 
     assert(number_of_hidden_layers > 0);
@@ -32,14 +16,14 @@ Model* create_Model(int input_size,int number_of_hidden_layers,int* layer_sizes,
 
     Layer* layers = malloc(sizeof(Layer) * (1+number_of_hidden_layers));
 
-    layers[0] = *create_Layer(input_size,layer_sizes[0],activation_function,dactivation_function);
+    layers[0] = *create_Layer(input_size,layer_sizes[0],activation_function,dactivation_function,initializationFunction);
 
 
     for(int i = 0 ; i < length -1; i++){
-        layers[i+1] = *create_Layer(layer_sizes[i],layer_sizes[i+1],activation_function,dactivation_function);
+        layers[i+1] = *create_Layer(layer_sizes[i],layer_sizes[i+1],activation_function,dactivation_function,initializationFunction);
     }
 
-    layers[length] = *create_Layer(layer_sizes[length-1],output_size,activation_function,dactivation_function);
+    layers[length] = *create_Layer(layer_sizes[length-1],output_size,activation_function,dactivation_function,initializationFunction);
 
     Model* model = malloc(sizeof (Model));
 

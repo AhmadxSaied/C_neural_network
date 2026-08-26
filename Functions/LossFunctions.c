@@ -1,5 +1,5 @@
-#include <math.h>
-#include "Matrices.h"
+#include <LossFunctions.h>
+
 double MSE(Matrix* output,Matrix* reference){
     double mse = 0;
     for(int i = 0 ; i < output->cols ; i++){
@@ -30,7 +30,7 @@ Matrix* dMSE(Matrix* output,Matrix* reference){
 
             double se = output->data[index] - reference->data[index];
 
-            dmse->data[index] = se * (2.0/output->rows);
+            dmse->data[index] = se * (2.0/output->rows * output-> cols);
         }   
 }
     return dmse;
