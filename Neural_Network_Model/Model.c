@@ -21,7 +21,6 @@ Model* create_Model(int input_size,int number_of_hidden_layers,int* layer_sizes,
 
     
     for(int i = 0 ; i < length -1; i--){
-        printf("layer %d created successfully\n",(i+1));
         layers[i+1] = *create_Layer(layer_sizes[i],layer_sizes[i+1],activation_function,dactivation_function,Mat_dactivation_function,initializationFunction);
     }
 
@@ -91,9 +90,9 @@ void backward(Matrix* input,Model* model,Matrix* reference,double learning_rate)
         
         model->layers[L].dbiases = matrix_sum_axis(do_dz_x_dl_do);
 
-
+        
         model->layers[L].dweights = matrix_dot(do_dz_x_dl_do,dz_dw);
-
+        
         Matrix* stepw = matrix_multiply_scalar(-learning_rate,model->layers[L].dweights);
         Matrix* stepb = matrix_multiply_scalar(-learning_rate,model->layers[L].dbiases);
 
@@ -116,21 +115,23 @@ void backward(Matrix* input,Model* model,Matrix* reference,double learning_rate)
     for(int i = L -1 ; i >= 1 ; i--){
         step(model->layers[i+1].delta
             ,model->layers[i+1].weights,model->layers[i-1].activations,&model->layers[i],learning_rate);
+        printf("layer %d done\n",(i+1));
     }
     step(model->layers[1].delta
         ,model->layers[1].weights,input,&model->layers[0],learning_rate);
+        // printf("mult went fine\n");
+
 }
 
 void step(Matrix* deltai_plus_1,Matrix* weight_i_plus_1,Matrix* prev_activations,Layer* layer,double learning_rate){
     
-
-    Matrix* trans_weights = matrix_transpose(weight_i_plus_1);
-
     layer->dactivations = layer->Mat_dactivation_function(layer->activations);
 
+    Matrix* trans_weights =matrix_transpose(weight_i_plus_1);
 
+    // printf("delta row -> %d delta col -> %d \n weight row -> %d weigh col -> %d\n",deltai_plus_1->rows,deltai_plus_1->cols,weight_i_plus_1->rows,weight_i_plus_1->cols);
     Matrix* first_half = matrix_dot(trans_weights,deltai_plus_1);
-
+    
     layer->delta = matrix_hadamard_product(first_half,layer->dactivations);
 
     

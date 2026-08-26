@@ -1,4 +1,5 @@
 #include "Matrices.h"
+#include <stdio.h>
 
 
 Matrix* create_Matrix(int rows,int cols){
