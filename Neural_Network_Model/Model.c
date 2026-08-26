@@ -2,7 +2,8 @@
 
 Model* create_Model(int input_size,int number_of_hidden_layers,int* layer_sizes,int output_size,
     double(*activation_function)(double val),double(*dactivation_function)(double val),
-    void (*initializationFunction)(Matrix* matrix)
+    Matrix* (*Mat_dactivation_function)(Matrix* matrix),
+    void (*initializationFunction)(int input,int output,Matrix* matrix)
 ){
 
     assert(number_of_hidden_layers > 0);
@@ -16,14 +17,15 @@ Model* create_Model(int input_size,int number_of_hidden_layers,int* layer_sizes,
 
     Layer* layers = malloc(sizeof(Layer) * (1+number_of_hidden_layers));
 
-    layers[0] = *create_Layer(input_size,layer_sizes[0],activation_function,dactivation_function,initializationFunction);
+    layers[0] = *create_Layer(input_size,layer_sizes[0],activation_function,dactivation_function,Mat_dactivation_function,initializationFunction);
 
-
-    for(int i = 0 ; i < length -1; i++){
-        layers[i+1] = *create_Layer(layer_sizes[i],layer_sizes[i+1],activation_function,dactivation_function,initializationFunction);
+    
+    for(int i = 0 ; i < length -1; i--){
+        printf("layer %d created successfully\n",(i+1));
+        layers[i+1] = *create_Layer(layer_sizes[i],layer_sizes[i+1],activation_function,dactivation_function,Mat_dactivation_function,initializationFunction);
     }
 
-    layers[length] = *create_Layer(layer_sizes[length-1],output_size,activation_function,dactivation_function,initializationFunction);
+    layers[length] = *create_Layer(layer_sizes[length-1],output_size,activation_function,dactivation_function,Mat_dactivation_function,initializationFunction);
 
     Model* model = malloc(sizeof (Model));
 
@@ -78,7 +80,7 @@ void backward(Matrix* input,Model* model,Matrix* reference,double learning_rate)
 
 
 
-        Matrix* do_dz = model->layers[L].dactivation_function(
+        Matrix* do_dz = model->layers[L].Mat_dactivation_function(
             model->layers[L].activations);
         
 
@@ -124,7 +126,7 @@ void step(Matrix* deltai_plus_1,Matrix* weight_i_plus_1,Matrix* prev_activations
 
     Matrix* trans_weights = matrix_transpose(weight_i_plus_1);
 
-    layer->dactivations = layer->dactivation_function(layer->activations);
+    layer->dactivations = layer->Mat_dactivation_function(layer->activations);
 
 
     Matrix* first_half = matrix_dot(trans_weights,deltai_plus_1);

@@ -83,7 +83,8 @@ Matrix* matrix_add_1D_to_2D(Matrix* matrix_A,Matrix* matrix_B){
 int matrix_cell_set(double value,int i,int j,Matrix* matrix){
     if(matrix == NULL) return -1;
     int index = i*matrix->cols + j;
-    assert(index < matrix->rows * matrix->cols);
+    assert(i >= 0  && i < matrix->rows);
+    assert(j >= 0  && j < matrix->cols);
 
     matrix->data[index] = value;
     return 1;
@@ -94,7 +95,8 @@ double matrix_cell_get(int i,int j,Matrix* matrix){
     assert(matrix !=NULL);
 
     int index = i*matrix->cols + j;
-    assert(index < matrix->rows * matrix->cols);
+    assert(i >= 0  && i < matrix->rows);
+    assert(j >= 0  && j < matrix->cols);
 
     return matrix->data[index];
 }

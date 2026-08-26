@@ -23,7 +23,9 @@ typedef struct Model
 double forward(Matrix* input, Model* Model,Matrix* reference);
 Model* create_Model(int input_size,int number_of_hidden_layers,int* layer_sizes,int output_size,
     double(*activation_function)(double val),double(*dactivation_function)(double val),
-    void (*initializationFunction)(Matrix* matrix)
+    Matrix* (*Mat_dactivation_function)(Matrix* matrix),
+    void (*initializationFunction)(int input,int output,Matrix* matrix)
+    
 );
 void backward(Matrix* input,Model* model,Matrix* reference,double learning_rate);
 void step(Matrix* deltai_plus_1,Matrix* weight_i_plus_1,Matrix* prev_activations,Layer* layer,double learning_rate);

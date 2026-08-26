@@ -1,5 +1,5 @@
 #include <ActivationFunctions.h>
-
+#include <math.h>
 double sigmoid(double val) {
     const double euler = exp(1);
     return (1 /  (1 + pow(euler,-val)));
