@@ -46,7 +46,6 @@ test_trainer: Trainer/Trainer_Test.c \
 			Loader/Loader.c \
 			Neural_Network_Model/Printing_Model.c \
 			Trainer/Trainer.c \
-			Neural_Network_Model/Layer.c
 
 
 	$(CC) $(CFLAGS) $^ -o test_trainer -lm

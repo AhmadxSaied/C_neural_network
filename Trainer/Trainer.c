@@ -1,5 +1,18 @@
 #include <Trainer.h>
 
+int* get_indices(Trainer* trainer){
+    int* indices = malloc(sizeof(int)* trainer->model->batch_size);
+    for(int i = 0 ; i < trainer->model->batch_size ; i++){
+        long long r1 = rand();
+        long long r2 = rand();
+
+        long long combined = (r1 * 327678LL + r2);
+        int num = combined % trainer->input_data->cols;
+        indices[i] = num; 
+    }
+    return indices;
+}
+
 Trainer* create_trainer(Model* model,Loader* loader,int epochs,int input_size,int samples,double learning_weight){
     assert(model != NULL && loader != NULL && epochs >= 0);
 
@@ -32,36 +45,48 @@ void Train(Trainer* trainer,int samples){
     int correct = 0;
     while (i < epochs)
     {
-     
-        long long r1 = rand();
-        long long r2 = rand();
 
-        long long combined = (r1 * 327678LL + r2);
-        int num = combined % trainer->input_data->cols;
+        int* indices = get_indices(trainer);
 
+        Matrix* input_sample = get_input(trainer->input_data,indices,trainer->model->batch_size);
+        Matrix* output_sample = get_output(trainer->input_target,indices,trainer->model->batch_size);
         
-        Matrix* input_sample = get_input(trainer->input_data,num);
-        Matrix* output_sample = get_output(trainer->input_target,num);
 
         double error = forward(input_sample,trainer->model,output_sample);
-        int prediction = backward(input_sample,trainer->model,output_sample,trainer->learning_weight);
+        int* prediction = backward(input_sample,trainer->model,output_sample,trainer->learning_weight);
 
-        int tru = argmax(output_sample);
+        int* tru = argmax(output_sample);
 
         if(isnan(error)){
             printf("NaN detected at layer %d, sample count %d\n", i, i);
             print_Model(trainer->model);
             exit(1);
         }
-        if(prediction == tru)correct++;
-        total++;
+        int batch_correct = 0;
+        for(int i = 0 ; i < trainer->model->batch_size; i++){
+            // printf("i=%d: tru=%d, pred=%d\n", i, tru[i], prediction[i]);
+            if(tru[i] == prediction[i]){
+                batch_correct++;
+            }
+            total++;
+        }
+        correct+=batch_correct;
+        
         if(i%1000 == 0){
-            printf("error: %lf, predicted: %d and true label: %d\n",error,prediction,argmax(output_sample));
+            
+            
+            printf("correctness: %d / %d, predicted: %d and true label: %d\n",batch_correct,
+                trainer->model->batch_size,
+                prediction[0],
+                tru[0]);
             trainer->learning_weight/=1.2;
         }
         i++;
         free_matrix(input_sample);
         free_matrix(output_sample);
+        free(indices);
+        free(prediction);
+        free(tru);
     }
     printf("accuracy: %.2f%%\n", 100.0 * correct / total);
     

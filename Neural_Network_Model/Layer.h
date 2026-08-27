@@ -22,7 +22,7 @@ typedef struct Layer
 } Layer;
 
 
-Layer* create_Layer(int layer_neurons, int nextlayer_neurons,double(*activation_function)(double val),double(*dactivation_function)(double val),
+Layer* create_Layer(int layer_neurons, int nextlayer_neurons,int batch_size,double(*activation_function)(double val),double(*dactivation_function)(double val),
 Matrix* (*Mat_dactivation_function)(Matrix* matrix),void (*initializationFunction)(int input,int output,Matrix* matrix)
 );
 void free_Layer_contents(Layer* layer);

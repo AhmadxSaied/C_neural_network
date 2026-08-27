@@ -1,9 +1,10 @@
 #include <Model.h>
 
-Model* create_Model(int input_size,int number_of_hidden_layers,int* layer_sizes,int output_size,
+Model* create_Model(int input_size,int number_of_hidden_layers,int* layer_sizes,int output_size,int batch_size,
     double(*activation_function)(double val),double(*dactivation_function)(double val),
     Matrix* (*Mat_dactivation_function)(Matrix* matrix),
     void (*initializationFunction)(int input,int output,Matrix* matrix)
+    
 ){
 
     assert(number_of_hidden_layers > 0);
@@ -17,24 +18,25 @@ Model* create_Model(int input_size,int number_of_hidden_layers,int* layer_sizes,
 
     Layer* layers = malloc(sizeof(Layer) * (1+number_of_hidden_layers));
 
-    Layer* temp = create_Layer(input_size,layer_sizes[0],activation_function,dactivation_function,Mat_dactivation_function,initializationFunction);
+    Layer* temp = create_Layer(input_size,layer_sizes[0],batch_size,activation_function,dactivation_function,Mat_dactivation_function,initializationFunction);
     layers[0] = *temp;
     free(temp);
     
     for(int i = 0 ; i < length -1; i++){
         
-        Layer* temp = create_Layer(layer_sizes[i],layer_sizes[i+1],activation_function,dactivation_function,Mat_dactivation_function,initializationFunction);
+        Layer* temp = create_Layer(layer_sizes[i],layer_sizes[i+1],batch_size,activation_function,dactivation_function,Mat_dactivation_function,initializationFunction);
         layers[i+1] = *temp;
         free(temp);
     }
 
-    Layer* templast = create_Layer(layer_sizes[length-1],output_size,activation_function,dactivation_function,Mat_dactivation_function,initializationFunction);
+    Layer* templast = create_Layer(layer_sizes[length-1],output_size,batch_size,activation_function,dactivation_function,Mat_dactivation_function,initializationFunction);
     layers[length] = *templast;
     free(templast);
 
     Model* model = malloc(sizeof (Model));
 
     model->input_size=input_size;
+    model->batch_size = batch_size;
 
     int* clayer_sizes = malloc(sizeof(int) * number_of_hidden_layers);
 
@@ -52,20 +54,24 @@ double forward(Matrix* input, Model* Model,Matrix* reference){
 
 
     Matrix* WxI = matrix_dot(Model->layers[0].weights,input);
+
     free_matrix(Model->layers[0].z);
-    Model->layers[0].z = matrix_add(WxI,Model->layers[0].biases);
+    
+    Model->layers[0].z = matrix_add_1D_to_2D(WxI,Model->layers[0].biases);
+
 
     matrix_apply_activation(Model->layers[0].activations,Model->layers[0].z,Model->layers[0].activation_function);
 
     free_matrix(WxI);
     for(int i = 1 ; i <= Model->number_of_hidden_layers ; i++){
         Matrix* WxI = matrix_dot(Model->layers[i].weights,Model->layers[i-1].activations);
-    
+
         free_matrix(Model->layers[i].z);
-        Model->layers[i].z = matrix_add(WxI,Model->layers[i].biases);
+
+        Model->layers[i].z = matrix_add_1D_to_2D(WxI,Model->layers[i].biases);
     
         matrix_apply_activation(Model->layers[i].activations,Model->layers[i].z,Model->layers[i].activation_function);
-
+        
         free_matrix(WxI);
     }
 
@@ -75,7 +81,7 @@ double forward(Matrix* input, Model* Model,Matrix* reference){
     
 }
 
-int backward(Matrix* input,Model* model,Matrix* reference,double learning_rate){
+int* backward(Matrix* input,Model* model,Matrix* reference,double learning_rate){
 
     assert(model != NULL && reference != NULL);
 
@@ -93,10 +99,16 @@ int backward(Matrix* input,Model* model,Matrix* reference,double learning_rate){
         Matrix* do_dz_x_dl_do  =  matrix_hadamard_product(dcost,do_dz);
         
         free_matrix(model->layers[L].dbiases);
-        model->layers[L].dbiases = matrix_sum_axis(do_dz_x_dl_do);
+        model->layers[L].dbiases = matrix_sum_axis(do_dz_x_dl_do,model->batch_size) ;
 
         free_matrix(model->layers[L].dweights);
         model->layers[L].dweights = matrix_dot(do_dz_x_dl_do,dz_dw);
+
+        Matrix* scaled_dweights = matrix_multiply_scalar(1.0/model->batch_size,model->layers[L].dweights);
+
+        free_matrix(model->layers[L].dweights);
+
+        model->layers[L].dweights= scaled_dweights;
         
         Matrix* stepw = matrix_multiply_scalar(-learning_rate,model->layers[L].dweights);
         Matrix* stepb = matrix_multiply_scalar(-learning_rate,model->layers[L].dbiases);
@@ -120,16 +132,16 @@ int backward(Matrix* input,Model* model,Matrix* reference,double learning_rate){
 
     for(int i = L -1 ; i >= 1 ; i--){
         step(model->layers[i+1].delta
-            ,model->layers[i+1].weights,model->layers[i-1].activations,&model->layers[i],learning_rate);
+            ,model->layers[i+1].weights,model->layers[i-1].activations,&model->layers[i],model->batch_size,learning_rate);
         // printf("layer %d done\n",(i+1));
     }
     step(model->layers[1].delta
-        ,model->layers[1].weights,input,&model->layers[0],learning_rate);
+        ,model->layers[1].weights,input,&model->layers[0],model->batch_size,learning_rate);
 
         return argmax(model->layers[L].activations);
 }
 
-void step(Matrix* deltai_plus_1,Matrix* weight_i_plus_1,Matrix* prev_activations,Layer* layer,double learning_rate){
+void step(Matrix* deltai_plus_1,Matrix* weight_i_plus_1,Matrix* prev_activations,Layer* layer,int batch_size,double learning_rate){
     
     free_matrix(layer->dactivations);
     layer->dactivations = layer->Mat_dactivation_function(layer->activations);
@@ -143,13 +155,18 @@ void step(Matrix* deltai_plus_1,Matrix* weight_i_plus_1,Matrix* prev_activations
     layer->delta = matrix_hadamard_product(first_half,layer->dactivations);
 
     free_matrix(layer->dbiases);
-    layer->dbiases = matrix_sum_axis(layer->delta);
+    layer->dbiases = matrix_sum_axis(layer->delta,batch_size);
 
     Matrix* trans_activations = matrix_transpose(prev_activations);
 
     free_matrix(layer->dweights);
     layer->dweights = matrix_dot(layer->delta,trans_activations);
 
+    Matrix* scaled_dweights = matrix_multiply_scalar(1.0/(double)batch_size,layer->dweights);
+
+    free_matrix(layer->dweights);
+
+    layer->dweights= scaled_dweights;
 
     Matrix* stepw = matrix_multiply_scalar(-learning_rate,layer->dweights);
     Matrix* stepb = matrix_multiply_scalar(-learning_rate,layer->dbiases);

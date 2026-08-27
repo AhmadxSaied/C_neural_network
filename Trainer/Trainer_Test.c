@@ -10,13 +10,14 @@
 #define TEST_URL  "/home/ahmed/Desktop/Main/projects/C_Neural_network/Trainer/archive/mnist_text_train_test/mnist-test-image.txt"
 #define TEST_LABEL_URL "/home/ahmed/Desktop/Main/projects/C_Neural_network/Trainer/archive/mnist_text_train_test/mnist-test-target.txt"
 #define TRAIN_LABEL_URL  "/home/ahmed/Desktop/Main/projects/C_Neural_network/Trainer/archive/mnist_text_train_test/mnist-train-target.txt"
-#define EPOCHS 60000
+#define EPOCHS 10000
 #define SAMPLES 60000
-#define LEARNING_RATE 0.04
+#define LEARNING_RATE 0.005
+#define BATCH_SIZE 32
 int main(){
     srand(time(NULL));
     int LAYERS[] = {64,32,16,-1};
-    Model* model = create_Model(INPUT_SIZE,HIDDEN_LAYERS,LAYERS,OUTPUT,relu,drelu,dreluMat,He_Initialization);
+    Model* model = create_Model(INPUT_SIZE,HIDDEN_LAYERS,LAYERS,OUTPUT,BATCH_SIZE,relu,drelu,dreluMat,He_Initialization);
 
     char* train_URL = TRAIN_URL;
     char* test_URL = TEST_URL;

@@ -1,5 +1,6 @@
 #ifndef TRAINER_H
 #define TRAINER_H
+#include <Printing_Model.h>
 #include <Model.h>
 #include <Loader.h>
 #include <Matrices.h>

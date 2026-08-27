@@ -78,7 +78,7 @@ Matrix* matrix_add_1D_to_2D(Matrix* matrix_A,Matrix* matrix_B){
     for(int i = 0 ; i < matrix_A->rows ; i++){
         for(int j = 0 ; j <matrix_A->cols;j++){
             int index_A = j + i* matrix_A->cols;
-            result_matrix->data[index_A] = matrix_A->data[index_A] + matrix_B->data[i];
+            result_matrix->data[index_A] = matrix_A->data[index_A] + matrix_cell_get(i,0,matrix_B);
         }
     }
     return result_matrix;
@@ -158,6 +158,7 @@ void matrix_zero(Matrix* matrix){
 void matrix_apply_activation(Matrix* result_Matrix,Matrix* matrix,double (*activation)(double val)){
     
     assert(matrix != NULL);
+    assert(result_Matrix->cols == matrix->cols && result_Matrix->rows == matrix->rows);
 
     for(int i = 0 ; i < matrix->rows ; i++){
         for(int j = 0 ; j < matrix->cols ; j++){
@@ -186,7 +187,7 @@ Matrix* matrix_hadamard_product(Matrix* matrix_A,Matrix* matrix_B){
 }
 
 
-Matrix* matrix_sum_axis(Matrix* matrix){
+Matrix* matrix_sum_axis(Matrix* matrix,int batch_size){
     assert(matrix != NULL);
 
     Matrix* result_matrix = create_Matrix(matrix->rows,1);
@@ -194,7 +195,7 @@ Matrix* matrix_sum_axis(Matrix* matrix){
     for(int i = 0 ; i< matrix->rows ; i++){
         result_matrix->data[i] = 0;
         for(int j = 0 ; j < matrix->cols ; j++){
-            result_matrix->data[i] += matrix->data[i*matrix->cols + j];
+            result_matrix->data[i] += matrix->data[i*matrix->cols + j] / (double)batch_size;
         }
     }
     return result_matrix;
@@ -226,22 +227,28 @@ void shuffle_columns(Matrix* input,Matrix* labels){
     }
 }
 
-Matrix* get_input(Matrix* input,int index){
-    Matrix* sample = create_Matrix(input->rows,1);
+Matrix* get_input(Matrix* input,int* indices,int batch_size){
+    Matrix* batch = create_Matrix(input->rows,batch_size);
     
-    for(int i = 0 ; i < input->rows;i++){
-        matrix_cell_set(matrix_cell_get(i,index,input),i,0,sample);
-    }
-    return sample;
+    for(int samp = 0 ; samp < batch_size ; samp++){
+        int index = indices[samp];
+        // printf("idx[%d] = %d\n", samp, index);
+        for(int i = 0 ; i < input->rows;i++){
+            matrix_cell_set(matrix_cell_get(i,index,input),i,samp,batch);
+        }
 }
-Matrix* get_output(Matrix* labels,int index){
+    return batch;
+}
+Matrix* get_output(Matrix* labels,int* indices,int batch_size){
     
-    Matrix* sample = create_Matrix(labels->rows,1);
-    
-    for(int i = 0 ; i < labels->rows;i++){
-        matrix_cell_set(matrix_cell_get(i,index,labels),i,0,sample);
-    }
-    return sample;
+    Matrix* batch = create_Matrix(labels->rows,batch_size);
+    for(int samp = 0 ; samp < batch_size ; samp++){
+        int index = indices[samp];
+        for(int i = 0 ; i < labels->rows;i++){
+            matrix_cell_set(matrix_cell_get(i,index,labels),i,samp,batch);
+        }
+}
+    return batch;
 }
 void free_matrix(Matrix* matrix){
     if(matrix == NULL)return;
@@ -250,18 +257,22 @@ void free_matrix(Matrix* matrix){
     matrix = NULL;
 }
 
-int argmax(Matrix* matrix){
-    assert(matrix->cols == 1);
+int* argmax(Matrix* matrix){
 
+    int* results = malloc(sizeof(int) * matrix->cols);
+
+    for(int j = 0 ;j < matrix->cols ; j++){
     int max_int=-1;
     double max_val = -1;
 
     for(int i = 0 ; i < matrix->rows; i++){
-        double val = matrix_cell_get(i,0,matrix);
+        double val = matrix_cell_get(i,j,matrix);
         if(val > max_val){
             max_val = val;
             max_int = i;
         }
     }
-    return max_int;
+    results[j] = max_int;
+}
+    return results;
 }
