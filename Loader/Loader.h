@@ -18,4 +18,5 @@ Matrix* load_train_samples(Loader* loader,int input_size,int samples);
 Matrix* load_test_samples(Loader* loader,int input_size,int samples);
 Matrix* load_training_labels(Loader* loader,int samples);
 Matrix* load_test_labels(Loader* loader,int samples);
+void free_Loader(Loader* loader);
 #endif

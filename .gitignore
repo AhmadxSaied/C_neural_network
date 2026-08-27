@@ -54,4 +54,4 @@ dkms.conf
 # debug information files
 *.dwo
 
-/Trainer/archive
+/Trainer/archive/mnist_text_train_test

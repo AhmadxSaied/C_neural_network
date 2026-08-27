@@ -26,7 +26,7 @@ Matrix* create_Matrix(int rows,int cols){
 Matrix* matrix_dot(Matrix* matrix_A,Matrix* matrix_B){
     if(matrix_A == NULL || matrix_B == NULL) return NULL;
 
-    printf("mata rows -> %d mata cols -> %d \n matb rows -> %d matb cols-> %d\n",matrix_A->rows,matrix_A->cols,matrix_B->rows,matrix_B->cols);
+    // printf("mata rows -> %d mata cols -> %d \n matb rows -> %d matb cols-> %d\n",matrix_A->rows,matrix_A->cols,matrix_B->rows,matrix_B->cols);
 
     assert(matrix_A->cols == matrix_B->rows);
     
@@ -95,7 +95,7 @@ int matrix_cell_set(double value,int i,int j,Matrix* matrix){
 }
 
 double matrix_cell_get(int i,int j,Matrix* matrix){
-    
+    // printf("input rows=%d cols=%d, index=%d\n", matrix->rows, matrix->cols, i);
     assert(matrix !=NULL);
 
     int index = i*matrix->cols + j;
@@ -200,33 +200,68 @@ Matrix* matrix_sum_axis(Matrix* matrix){
     return result_matrix;
 }
 
-void swap_rows(Matrix* matrix,int row1,int row2){
-    int cols = matrix->cols;
+void swap_columns(Matrix* matrix,int col1,int col2){
+    int rows = matrix->rows;
 
-    for(int i = 0 ; i< cols ; i++){
-        double temp = matrix_cell_get(row1,i,matrix);
-        matrix_cell_set(matrix_cell_get(row2,i,matrix),row1,i,
+    for(int i = 0 ; i< rows ; i++){
+        double temp = matrix_cell_get(i,col1,matrix);
+        matrix_cell_set(matrix_cell_get(i,col2,matrix),i,col1,
         matrix
         );
-        matrix_cell_set(temp,row2,i,matrix);
+        matrix_cell_set(temp,i,col2,matrix);
     }
 }
 
-void shuffle_Matrix(Matrix* matrix){
-    int rows = matrix->rows;
-
-    for(int i = rows - 1 ; i> 0; i--){
+void shuffle_columns(Matrix* input,Matrix* labels){
+    
+    assert(input->cols == labels->cols);
+    int cols = input->cols;
+    for(int i = cols - 1 ; i> 0; i--){
         int j = rand() % (i+1);
 
         if(i!=j){
-            swap_rows(matrix,i,rows);
+            swap_columns(input,i,j);
+            swap_columns(labels,i,j);
         }
     }
 }
 
+Matrix* get_input(Matrix* input,int index){
+    Matrix* sample = create_Matrix(input->rows,1);
+    
+    for(int i = 0 ; i < input->rows;i++){
+        matrix_cell_set(matrix_cell_get(i,index,input),i,0,sample);
+    }
+    return sample;
+}
+Matrix* get_output(Matrix* labels,int index){
+    
+    Matrix* sample = create_Matrix(labels->rows,1);
+    
+    for(int i = 0 ; i < labels->rows;i++){
+        matrix_cell_set(matrix_cell_get(i,index,labels),i,0,sample);
+    }
+    return sample;
+}
 void free_matrix(Matrix* matrix){
     if(matrix == NULL)return;
     free(matrix->data);
     free(matrix);
     matrix = NULL;
+}
+
+int argmax(Matrix* matrix){
+    assert(matrix->cols == 1);
+
+    int max_int=-1;
+    double max_val = -1;
+
+    for(int i = 0 ; i < matrix->rows; i++){
+        double val = matrix_cell_get(i,0,matrix);
+        if(val > max_val){
+            max_val = val;
+            max_int = i;
+        }
+    }
+    return max_int;
 }

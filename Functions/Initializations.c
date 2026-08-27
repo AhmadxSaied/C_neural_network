@@ -20,14 +20,14 @@ void xavier_Initialization(int input,int output,Matrix* matrix){
 }
 
 void He_Initialization(int input,int output,Matrix* matrix){
-    srand(time(NULL));
+    
     assert(matrix != NULL && input > 0 && output > 0);
     
-    double std = (double)(sqrt(2)) / (double)input;
+    double std = (double)(sqrt((double)2 /(double)input));
     for(int i = 0 ; i < matrix->rows ; i++){
         for(int j = 0 ; j < matrix->cols ; j++){
 
-            double ran = ((double)rand()) / (double)RAND_MAX;
+            double ran = (((double)rand()) / (double)RAND_MAX)*2 -1;
             
             ran = ran*std;
 

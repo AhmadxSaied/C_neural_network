@@ -26,3 +26,14 @@ Matrix* (*Mat_dactivation_function)(Matrix* matrix),void (*initializationFunctio
     return layer;
 
 }
+void free_Layer_contents(Layer* layer){
+    if(layer == NULL) return;
+    free_matrix(layer->weights);
+    free_matrix(layer->biases);
+    free_matrix(layer->z);
+    free_matrix(layer->activations);
+    free_matrix(layer->dweights);
+    free_matrix(layer->dbiases);
+    free_matrix(layer->dactivations);
+    free_matrix(layer->delta);
+}

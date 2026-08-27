@@ -10,11 +10,13 @@ double dsigmoid(double val){
 }
 
 double relu(double val){
-    return ((val >=0) ? val : 0);
+    if(val >= 0)return val;
+    else return 0;
 }
 
 double drelu(double val){
-    return ((val > 0)? 1 : 0);
+    if(val > 0)return 1;
+    else return 0;
 }
 
 Matrix* dreluMat(Matrix* matrix){

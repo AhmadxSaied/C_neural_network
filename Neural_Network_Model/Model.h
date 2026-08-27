@@ -8,7 +8,7 @@
 #include <assert.h>
 #include <Layer.h>
 #include <LossFunctions.h>
-
+#include <ActivationFunctions.h>
 typedef struct Model
 {
     int input_size;
@@ -27,7 +27,7 @@ Model* create_Model(int input_size,int number_of_hidden_layers,int* layer_sizes,
     void (*initializationFunction)(int input,int output,Matrix* matrix)
     
 );
-void backward(Matrix* input,Model* model,Matrix* reference,double learning_rate);
+int backward(Matrix* input,Model* model,Matrix* reference,double learning_rate);
 void step(Matrix* deltai_plus_1,Matrix* weight_i_plus_1,Matrix* prev_activations,Layer* layer,double learning_rate);
-
+void free_Model(Model* model);
 #endif
