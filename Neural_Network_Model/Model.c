@@ -78,7 +78,6 @@ void backward(Matrix* input,Model* model,Matrix* reference,double learning_rate)
         Matrix* dcost =  dMSE(model->layers[L].activations,reference);
 
 
-
         Matrix* do_dz = model->layers[L].Mat_dactivation_function(
             model->layers[L].activations);
         
@@ -119,7 +118,7 @@ void backward(Matrix* input,Model* model,Matrix* reference,double learning_rate)
     }
     step(model->layers[1].delta
         ,model->layers[1].weights,input,&model->layers[0],learning_rate);
-        // printf("mult went fine\n");
+        
 
 }
 
@@ -127,7 +126,7 @@ void step(Matrix* deltai_plus_1,Matrix* weight_i_plus_1,Matrix* prev_activations
     
     layer->dactivations = layer->Mat_dactivation_function(layer->activations);
 
-    Matrix* trans_weights =matrix_transpose(weight_i_plus_1);
+    Matrix* trans_weights = matrix_transpose(weight_i_plus_1);
 
     // printf("delta row -> %d delta col -> %d \n weight row -> %d weigh col -> %d\n",deltai_plus_1->rows,deltai_plus_1->cols,weight_i_plus_1->rows,weight_i_plus_1->cols);
     Matrix* first_half = matrix_dot(trans_weights,deltai_plus_1);

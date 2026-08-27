@@ -25,6 +25,9 @@ Matrix* create_Matrix(int rows,int cols){
 
 Matrix* matrix_dot(Matrix* matrix_A,Matrix* matrix_B){
     if(matrix_A == NULL || matrix_B == NULL) return NULL;
+
+    printf("mata rows -> %d mata cols -> %d \n matb rows -> %d matb cols-> %d\n",matrix_A->rows,matrix_A->cols,matrix_B->rows,matrix_B->cols);
+
     assert(matrix_A->cols == matrix_B->rows);
     
     Matrix* result_matrix = create_Matrix(matrix_A->rows,matrix_B->cols);
@@ -54,7 +57,7 @@ Matrix* matrix_add(Matrix* matrix_A,Matrix* matrix_B){
     if(matrix_A == NULL || matrix_B == NULL) return NULL;
     assert(matrix_A->cols == matrix_B->cols && matrix_A->rows == matrix_B->rows);
 
-    Matrix* result_matrix = create_Matrix(matrix_A->cols,matrix_B->rows);
+    Matrix* result_matrix = create_Matrix(matrix_A->rows,matrix_B->cols);
 
 
     for(int i = 0 ;i < matrix_A->rows; i++){
@@ -70,7 +73,7 @@ Matrix* matrix_add_1D_to_2D(Matrix* matrix_A,Matrix* matrix_B){
     if(matrix_A == NULL || matrix_B == NULL) return NULL;
     assert(matrix_A->rows == matrix_B->rows);
 
-    Matrix* result_matrix = create_Matrix(matrix_A->cols,matrix_A->rows);
+    Matrix* result_matrix = create_Matrix(matrix_A->rows,matrix_A->cols);
 
     for(int i = 0 ; i < matrix_A->rows ; i++){
         for(int j = 0 ; j <matrix_A->cols;j++){
@@ -195,6 +198,30 @@ Matrix* matrix_sum_axis(Matrix* matrix){
         }
     }
     return result_matrix;
+}
+
+void swap_rows(Matrix* matrix,int row1,int row2){
+    int cols = matrix->cols;
+
+    for(int i = 0 ; i< cols ; i++){
+        double temp = matrix_cell_get(row1,i,matrix);
+        matrix_cell_set(matrix_cell_get(row2,i,matrix),row1,i,
+        matrix
+        );
+        matrix_cell_set(temp,row2,i,matrix);
+    }
+}
+
+void shuffle_Matrix(Matrix* matrix){
+    int rows = matrix->rows;
+
+    for(int i = rows - 1 ; i> 0; i--){
+        int j = rand() % (i+1);
+
+        if(i!=j){
+            swap_rows(matrix,i,rows);
+        }
+    }
 }
 
 void free_matrix(Matrix* matrix){
