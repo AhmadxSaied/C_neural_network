@@ -10,14 +10,16 @@
 #define TEST_URL  "/home/ahmed/Desktop/Main/projects/C_Neural_network/Trainer/archive/mnist_text_train_test/mnist-test-image.txt"
 #define TEST_LABEL_URL "/home/ahmed/Desktop/Main/projects/C_Neural_network/Trainer/archive/mnist_text_train_test/mnist-test-target.txt"
 #define TRAIN_LABEL_URL  "/home/ahmed/Desktop/Main/projects/C_Neural_network/Trainer/archive/mnist_text_train_test/mnist-train-target.txt"
-#define EPOCHS 10000
-#define SAMPLES 60000
-#define LEARNING_RATE 0.005
+#define EPOCHS 30
+#define TRAIN_SAMPLES 60000
+#define TEST_SAMPLES 10000
+#define LEARNING_RATE_MSE 0.001
+#define LEARNING_RATE_CE 0.75
 #define BATCH_SIZE 32
 int main(){
     srand(time(NULL));
     int LAYERS[] = {64,32,16,-1};
-    Model* model = create_Model(INPUT_SIZE,HIDDEN_LAYERS,LAYERS,OUTPUT,BATCH_SIZE,relu,drelu,dreluMat,He_Initialization);
+    Model* model = create_Model(INPUT_SIZE,HIDDEN_LAYERS,LAYERS,OUTPUT,BATCH_SIZE,relu,drelu,dreluMat,He_Initialization,MSE,dMSE);
 
     char* train_URL = TRAIN_URL;
     char* test_URL = TEST_URL;
@@ -27,8 +29,8 @@ int main(){
 
     Loader* loader = create_Loader(test_URL,test_label_URL,train_URL,train_label_URL);
 
-    Trainer* trainer = create_trainer(model,loader,EPOCHS,INPUT_SIZE,SAMPLES,LEARNING_RATE);
-    Train(trainer,SAMPLES);
-
+    Trainer* trainer = create_trainer(model,loader,EPOCHS,INPUT_SIZE,TRAIN_SAMPLES,LEARNING_RATE_MSE);
+    Train(trainer,TRAIN_SAMPLES);
+    Test(trainer,TEST_SAMPLES);
     free_Trainer(trainer);
 }

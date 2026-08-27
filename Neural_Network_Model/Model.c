@@ -3,8 +3,9 @@
 Model* create_Model(int input_size,int number_of_hidden_layers,int* layer_sizes,int output_size,int batch_size,
     double(*activation_function)(double val),double(*dactivation_function)(double val),
     Matrix* (*Mat_dactivation_function)(Matrix* matrix),
-    void (*initializationFunction)(int input,int output,Matrix* matrix)
-    
+    void (*initializationFunction)(int input,int output,Matrix* matrix),
+    double (*lossfunction)(Matrix* output,Matrix* reference),
+    Matrix* (*dlossfunction)(Matrix* output,Matrix* reference)
 ){
 
     assert(number_of_hidden_layers > 0);
@@ -45,37 +46,38 @@ Model* create_Model(int input_size,int number_of_hidden_layers,int* layer_sizes,
     model->number_of_hidden_layers = length;
     model->output_size = output_size;
     model->layers = layers;
-
+    model->lossfunction = lossfunction;
+    model->dlossfunction =dlossfunction;
     return model;
 }
 
 
-double forward(Matrix* input, Model* Model,Matrix* reference){
+double forward(Matrix* input, Model* model,Matrix* reference){
 
 
-    Matrix* WxI = matrix_dot(Model->layers[0].weights,input);
+    Matrix* WxI = matrix_dot(model->layers[0].weights,input);
 
-    free_matrix(Model->layers[0].z);
+    free_matrix(model->layers[0].z);
     
-    Model->layers[0].z = matrix_add_1D_to_2D(WxI,Model->layers[0].biases);
+    model->layers[0].z = matrix_add_1D_to_2D(WxI,model->layers[0].biases);
 
 
-    matrix_apply_activation(Model->layers[0].activations,Model->layers[0].z,Model->layers[0].activation_function);
+    matrix_apply_activation(model->layers[0].activations,model->layers[0].z,model->layers[0].activation_function);
 
     free_matrix(WxI);
-    for(int i = 1 ; i <= Model->number_of_hidden_layers ; i++){
-        Matrix* WxI = matrix_dot(Model->layers[i].weights,Model->layers[i-1].activations);
+    for(int i = 1 ; i <= model->number_of_hidden_layers ; i++){
+        Matrix* WxI = matrix_dot(model->layers[i].weights,model->layers[i-1].activations);
 
-        free_matrix(Model->layers[i].z);
+        free_matrix(model->layers[i].z);
 
-        Model->layers[i].z = matrix_add_1D_to_2D(WxI,Model->layers[i].biases);
+        model->layers[i].z = matrix_add_1D_to_2D(WxI,model->layers[i].biases);
     
-        matrix_apply_activation(Model->layers[i].activations,Model->layers[i].z,Model->layers[i].activation_function);
+        matrix_apply_activation(model->layers[i].activations,model->layers[i].z,model->layers[i].activation_function);
         
         free_matrix(WxI);
     }
 
-    double error = MSE(Model->layers[Model->number_of_hidden_layers].activations,reference);
+    double error = model->lossfunction(model->layers[model->number_of_hidden_layers].activations,reference);
 
     return error;
     
@@ -86,7 +88,7 @@ int* backward(Matrix* input,Model* model,Matrix* reference,double learning_rate)
     assert(model != NULL && reference != NULL);
 
         int L = model->number_of_hidden_layers;
-        Matrix* dcost =  dMSE(model->layers[L].activations,reference);
+        Matrix* dcost =  model->dlossfunction(model->layers[L].activations,reference);
 
 
         Matrix* do_dz = model->layers[L].Mat_dactivation_function(

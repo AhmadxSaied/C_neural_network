@@ -2,7 +2,6 @@
 
 void xavier_Initialization(int input,int output,Matrix* matrix){
 
-    srand(time(NULL));
     assert(matrix != NULL && input > 0 && output > 0);
 
     double lower = (double)(-sqrt(6.0)) / (double)(sqrt(input + output));

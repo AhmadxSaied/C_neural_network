@@ -17,15 +17,17 @@ typedef struct Model
     int output_size;
     int batch_size;
     Layer* layers;
-
+    double (*lossfunction)(Matrix* output,Matrix* reference);
+    Matrix* (*dlossfunction)(Matrix* output,Matrix* reference);
 }Model;
 
-double forward(Matrix* input, Model* Model,Matrix* reference);
+double forward(Matrix* input, Model* model,Matrix* reference);
 Model* create_Model(int input_size,int number_of_hidden_layers,int* layer_sizes,int output_size,int batch_size,
     double(*activation_function)(double val),double(*dactivation_function)(double val),
     Matrix* (*Mat_dactivation_function)(Matrix* matrix),
-    void (*initializationFunction)(int input,int output,Matrix* matrix)
-    
+    void (*initializationFunction)(int input,int output,Matrix* matrix),
+    double (*lossfunction)(Matrix* output,Matrix* reference),
+    Matrix* (*dlossfunction)(Matrix* output,Matrix* reference) 
 );
 int* backward(Matrix* input,Model* model,Matrix* reference,double learning_rate);
 void step(Matrix* deltai_plus_1,Matrix* weight_i_plus_1,Matrix* prev_activations,Layer* layer,int batch_size,double learning_rate);

@@ -21,10 +21,10 @@ test_matrices: Custom_Matrices/Matrices_Test.c Custom_Matrices/Matrices.c
 	$(CC) $(CFLAGS) $^ -o test_matrices
 
 test_loss: Functions/LossFunctions_Test.c Functions/LossFunctions.c Custom_Matrices/Matrices.c
-	$(CC) $(CFLAGS) $^ -o test_loss
+	$(CC) $(CFLAGS) $^ -o test_loss -lm
 
 test_loader: Loader/Loader_Test.c Functions/LossFunctions.c Custom_Matrices/Matrices.c Loader/Loader.c Neural_Network_Model/Printing_Model.c
-	$(CC) $(CFLAGS) $^ -o test_loader
+	$(CC) $(CFLAGS) $^ -o test_loader -lm
 
 test_model: Neural_Network_Model/Model_Test.c \
 			Neural_Network_Model/Model.c \
