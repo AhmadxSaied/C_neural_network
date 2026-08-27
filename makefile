@@ -11,7 +11,7 @@ CORE_SRCS = Custom_Matrices/Matrices.c \
 			Loader/Loader.c \
 			Neural_Network_Model/Printing_Model.c \
 			Trainer/Trainer.c \
-			Neural_Network_Model/Layer.c
+			Neural_Network_Model/Layer.c 
 
 
 main: main.c $(CORE_SRCS)

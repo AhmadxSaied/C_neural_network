@@ -55,3 +55,4 @@ dkms.conf
 *.dwo
 
 /Trainer/archive/mnist_text_train_test
+/Trainer/URLS.h

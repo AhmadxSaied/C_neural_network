@@ -8,7 +8,7 @@ int* get_indices(int b,int batch_size){
     return indices;
 }
 
-Trainer* create_trainer(Model* model,Loader* loader,int epochs,int input_size,int samples,double learning_weight){
+Trainer* create_trainer(Model* model,Loader* loader,int epochs,int input_size,int input_samples,int test_samples,double learning_weight){
     assert(model != NULL && loader != NULL && epochs >= 0);
 
 
@@ -17,11 +17,11 @@ Trainer* create_trainer(Model* model,Loader* loader,int epochs,int input_size,in
     trainer->model = model;
 
     trainer->loader = loader;
-    trainer->input_data = load_train_samples(trainer->loader,input_size,samples);
-    trainer->test_data = load_test_samples(trainer->loader,input_size,samples);
+    trainer->input_data = load_train_samples(trainer->loader,input_size,input_samples);
+    trainer->test_data = load_test_samples(trainer->loader,input_size,test_samples);
 
-    trainer->input_target = load_training_labels(trainer->loader,samples);
-    trainer->test_target = load_test_labels(trainer->loader,samples);
+    trainer->input_target = load_training_labels(trainer->loader,input_samples);
+    trainer->test_target = load_test_labels(trainer->loader,test_samples);
 
     trainer->epochs = epochs;
     trainer->learning_weight = learning_weight;
@@ -29,14 +29,14 @@ Trainer* create_trainer(Model* model,Loader* loader,int epochs,int input_size,in
     return trainer;
 }
 
-void Train(Trainer* trainer,int samples){
+void Train(Trainer* trainer,int input_samples){
 
     int epochs = trainer->epochs;
     int n = 0;
     // printf("Hello");
     int total = 0;
     int correct = 0;
-    int batches = samples / trainer->model->batch_size;
+    int batches = input_samples / trainer->model->batch_size;
     
     while (n < epochs)
     {
@@ -90,12 +90,12 @@ void Train(Trainer* trainer,int samples){
     
 }
 
-void Test(Trainer* trainer,int samples){
+void Test(Trainer* trainer,int test_samples){
 
     // printf("Hello");
     int total = 0;
     int correct = 0;
-    int batches = samples / trainer->model->batch_size;
+    int batches = test_samples / trainer->model->batch_size;
 
         for(int b= 0 ; b < batches;b++){
 
@@ -108,10 +108,10 @@ void Test(Trainer* trainer,int samples){
             forward(input_sample,trainer->model,output_sample);
             
             for(int col = 0 ; col < trainer->model->batch_size ; col++){
-                int* c = malloc(sizeof(int));
-                c[0]= col;
-                Matrix* one_output = get_output(trainer->model->layers[trainer->model->number_of_hidden_layers].activations, c, 1);
-                Matrix* one_target = get_output(output_sample, c, 1);
+                int* colholder = malloc(sizeof(int));
+                colholder[0]= col;
+                Matrix* one_output = get_output(trainer->model->layers[trainer->model->number_of_hidden_layers].activations, colholder, 1);
+                Matrix* one_target = get_output(output_sample, colholder, 1);
     
                 int* predicted = argmax(one_output);
                 int* actual = argmax(one_target);
@@ -121,6 +121,9 @@ void Test(Trainer* trainer,int samples){
     
                 free_matrix(one_output);
                 free_matrix(one_target);
+                free(colholder);
+                free(predicted);
+                free(actual);
             }
 
             free_matrix(input_sample);

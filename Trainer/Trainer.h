@@ -16,8 +16,8 @@ typedef struct trainer {
     double learning_weight;
 } Trainer;
 
-Trainer* create_trainer(Model* model,Loader* loader,int epochs,int input_size,int samples,double learning_weight);
-void Train(Trainer* trainer,int samples);
+Trainer* create_trainer(Model* model,Loader* loader,int epochs,int input_size,int train_samples,int test_samples,double learning_weight);
+void Train(Trainer* trainer,int train_samples);
 void free_Trainer(Trainer* trainer);
-void Test(Trainer* trainer,int samples);
+void Test(Trainer* trainer,int test_samples);
 #endif
