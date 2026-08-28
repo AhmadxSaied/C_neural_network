@@ -13,21 +13,21 @@
 #define LEARNING_RATE_MSE 0.001
 #define LEARNING_RATE_CE 0.75
 #define BATCH_SIZE 16
-int main(){
+int main()
+{
     srand(time(NULL));
-    int LAYERS[] = {64,32,16,-1};
-    Model* model = create_Model(INPUT_SIZE,HIDDEN_LAYERS,LAYERS,OUTPUT,BATCH_SIZE,relu,drelu,dreluMat,He_Initialization,MSE,dMSE);
+    int LAYERS[] = {64, 32, 16, -1};
+    Model *model = create_Model(INPUT_SIZE, HIDDEN_LAYERS, LAYERS, OUTPUT, BATCH_SIZE, relu, drelu, dreluMat, He_Initialization, MSE, dMSE);
 
-    char* train_URL = TRAIN_URL;
-    char* test_URL = TEST_URL;
-    char* test_label_URL = TEST_LABEL_URL;
-    char* train_label_URL = TRAIN_LABEL_URL;
-    
+    char *train_URL = TRAIN_URL;
+    char *test_URL = TEST_URL;
+    char *test_label_URL = TEST_LABEL_URL;
+    char *train_label_URL = TRAIN_LABEL_URL;
 
-    Loader* loader = create_Loader(test_URL,test_label_URL,train_URL,train_label_URL);
+    Loader *loader = create_Loader(test_URL, test_label_URL, train_URL, train_label_URL);
 
-    Trainer* trainer = create_trainer(model,loader,EPOCHS,INPUT_SIZE,TRAIN_SAMPLES,TEST_SAMPLES,LEARNING_RATE_MSE);
-    Train(trainer,TRAIN_SAMPLES);
-    Test(trainer,TEST_SAMPLES);
+    Trainer *trainer = create_trainer(model, loader, EPOCHS, INPUT_SIZE, TRAIN_SAMPLES, TEST_SAMPLES, LEARNING_RATE_MSE);
+    Train(trainer, TRAIN_SAMPLES);
+    Test(trainer, TEST_SAMPLES);
     free_Trainer(trainer);
 }
